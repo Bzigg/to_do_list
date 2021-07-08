@@ -11,14 +11,36 @@ class User {
         let name = 'ddd';
         // запросить name
         this.name = name;
+        this.getData();
     }
     /**
      * запрос последних 10 заявок из бэкенда и направление в list
      */
     getData() {
-        this.listNotes.dataStr = strNotes;
+
+        let notesPromise = new Promise(function (resolve) {
+            fetch('http://localhost/projects/to_do_list/backend/app.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `getDataNotes=last10`
+            })
+                .then(function (data) {
+                    resolve(data.text());
+                })
+        });
+
+        notesPromise.then(value => {
+
+            let strNotes = value;
+            this.listNotes.dataStr = strNotes;
+            this.mount();
+
+        });
+
         // debug(this.listNotes);
-        this.mount();
+
     }
     /**
      * выводим на страницу
