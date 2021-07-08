@@ -1,0 +1,87 @@
+/*common*/
+.wrapper{
+    width: 100%;
+    min-height: 100%;
+    overflow: hidden;
+
+    display: flex;
+    flex-direction: column;
+}
+.container {
+    max-width: 900px;
+    margin: auto;
+}
+.btn{}
+/*header*/
+.header {
+    background-color: rgba(111, 190, 255, 0.424);
+    border-bottom: 3px solid rgb(39, 114, 253);
+}
+.header__menu{
+
+}
+.menu__list{
+    display: flex;
+    list-style-type: none;
+    justify-content: flex-end;
+    padding: 0;
+}
+.menu__item{
+    padding: 0 8px;
+}
+.menu__link{
+    color: black;
+    text-decoration: none;
+}
+
+/*main*/
+.main{
+    margin-top: 1rem;
+}
+.main__content{
+    display: flex;
+    justify-content: space-between;
+}
+.main__cards-block{}
+.main__cards{}
+.main__card{
+    max-width: 100%;
+    width: 300px; 
+    margin-bottom: 0.5rem;
+    padding: 1rem;
+    border: 1px solid rgba(160, 159, 159, 0.513);
+    border-radius: 0.2rem;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+.main__card-delete{
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    width: 20px;
+    height: auto;
+}
+.main__card-title{
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-top: 0.5rem;
+}
+.main__card-discription{
+    font-size: 1rem;
+    margin-top: 0.4rem;
+}
+.main__card-date{
+    font-size: 0.8rem;
+    color: rgb(128, 128, 128);
+    margin-top: 0.8rem;
+    text-align: right;
+}
+.main__card-none{}
+.main__cards-bottom{
+    display: flex;
+    justify-content: center;
+}
+.main__cards-btn{
+    width: 50%;
+}

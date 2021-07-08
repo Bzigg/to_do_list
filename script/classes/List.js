@@ -22,7 +22,7 @@ class List {
         for (let value of this.notes) {
             let note = `
             <div class="main__card" id="${+value.id + 1}">
-                <div class="main__card-delete">X</div>
+                <img src="images/ui/close_x.png" alt="Закрыть" class="main__card-delete">
                 <div class="main__card-title">${value.title}</div>
                 <div class="main__card-discription">${value.discription}</div>
                 <div class="main__card-date">${value.date}</div>
