@@ -6,7 +6,8 @@ class List {
         this.layout = '';
     }
     /**
-     * парсим данные и бэка в dataObj
+     * парсим данные с сервера и передаем в dataObj
+     * создаем экземпляр заметки
      */
     parseData() {
         let dataObj = JSON.parse(this.dataStr);
@@ -14,6 +15,9 @@ class List {
             this.notes.push(new Note(key, dataObj[key]));
         }
     }
+    /**
+     * рендер заметки
+     */
     render() {
         for (let value of this.notes) {
             let note = `

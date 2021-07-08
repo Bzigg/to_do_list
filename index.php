@@ -6,6 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Список дел</title>
+    <link rel="stylesheet" href="style/style.css">
     <script src="script/debug.js" defer></script>
     <script src="script/classes/Note.js" defer></script>
     <script src="script/classes/List.js" defer></script>
@@ -48,8 +49,7 @@
                             </div>
                             <div class="add-row">
                                 <div class="add__lable"><label for="note-discription">Описание</label></div>
-                                <div class="add__field"><textarea id="note-discription" class="note__discription"
-                                        cols="22" rows="10"></textarea>
+                                <div class="add__field"><textarea id="note-discription" class="note__discription" cols="22" rows="10"></textarea>
                                 </div>
                             </div>
                             <div class="add__btn btn"><button class="note__save">Сохранить</button></div>

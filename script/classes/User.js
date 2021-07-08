@@ -12,14 +12,18 @@ class User {
     getNoteId(item) {
         return item.id;
     }
-
+    /**
+     * 
+     * @param {String} selector 
+     * @returns вернет элемент
+     */
     getSelector(selector) {
         return document.querySelector(selector);
     }
     /**
-     * запрос имени пользователя с бэка по id из cookes
+     * запрос имени пользователя с бэка по id из cookes (не реализованно)
+     * инициализация рендера
      */
-
     getName() {
         let name = 'ddd';
         // запросить name
@@ -27,7 +31,10 @@ class User {
         this.getData();
     }
     /**
-     * запрос последних 10 заявок из бэкенда и направление в list
+     * 
+     * @param {*} key 
+     * @param {*} value 
+     * @returns готовый промис
      */
     getPromise(key, value) {
 
@@ -46,6 +53,9 @@ class User {
         return myPromise;
 
     }
+    /**
+     * запрос данных ис сервера
+     */
     getData() {
 
         let notesPromise = this.getPromise('getDataNotes', 'last10')
@@ -62,7 +72,7 @@ class User {
 
     }
     /**
-     * выводим на страницу
+     * выводим на страницу отрендеренные заетки
      */
     mount() {
         this.listNotes.parseData();
@@ -75,12 +85,26 @@ class User {
             this.subscribeOnDelete();
         }
     }
+    /**
+     * подписываемся на удаление заметки
+     */
     subscribeOnDelete() {
         let notes = document.querySelectorAll('.main__card-delete');
         notes.forEach(item => {
             item.addEventListener('click', this.onDeleteNotes.bind(this));
         });
     }
+    /**
+     * отписка от кнопки удаления
+     * @param {Object} deleteBtn узел кнопки удаление
+     */
+    unsubscribeOnDelete(deleteBtn) {
+        deleteBtn.removeEventListener('click', this.onDeleteNotes);
+    }
+    /**
+     * отправляем запрос на удаление заметки
+     * @param {Object} event 
+     */
     onDeleteNotes(event) {
         this.idNote = this.getNoteId(event.target.parentNode);
 
@@ -91,12 +115,23 @@ class User {
         });
 
     }
-    checkDeleteNote(value, id) {
+    /**
+     * если с сервера пришел ответ (true) вызываем удаление заметки
+     * @param {JSON} value 
+     */
+    checkDeleteNote(value) {
         let answer = JSON.parse(value);
         if (answer === true) {
             this.unmount(this.idNote);
         }
+        else {
+            alert('Ошибка при удалении данных');
+        }
     }
+    /**
+     * инициализируем удаление заметки
+     * @param {String} id номер заметки
+     */
 
     unmount(id) {
         let note = document.getElementById(`${id}`);
@@ -110,7 +145,5 @@ class User {
     }
 
 
-    unsubscribeOnDelete(deleteBtn) {
-        deleteBtn.removeEventListener('click', this.onDeleteNotes);
-    }
+
 }
