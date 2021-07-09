@@ -47,7 +47,6 @@ class User {
         let body = `${key}=${value}`
 
         if (type == 'json') {
-            debug(key);
             body = JSON.stringify({ key: value })
         }
 
@@ -209,12 +208,13 @@ class User {
         let notePromise = this.getPromise('note', strNoteValue, 'json');
 
         notePromise.then(value => {
-            debug(value);
+            // debug(value);
+            // debug(value);
             // debug(JSON.parse(value));
-            // if (JSON.parse(value) == true) {
-            //     // alert('ok');
-            //     return;
-            // };
+            if (JSON.parse(value) == true) {
+                this.mount();
+                return;
+            };
             alert('запись не добавленна');
         });
     }
