@@ -28,7 +28,13 @@ class User {
         let name = 'ddd';
         // запросить name
         this.name = name;
+        this.subscribeInput('note__title');
+        this.subscribeInput('note__discription');
+        this.mountInput('note__title')
+        this.mountInput('note__discription')
         this.getData();
+
+        this.subscribe(this.getSelector(`.note__save`), 'click', this.setNote, ['note__title', 'note__discription'])
     }
     /**
      * 
@@ -36,15 +42,23 @@ class User {
      * @param {*} value 
      * @returns готовый промис
      */
-    getPromise(key, value) {
+    getPromise(key, value, type = 'x-www-form-urlencoded') {
+
+        let body = `${key}=${value}`
+
+        if (type == 'json') {
+            debug(key);
+            body = JSON.stringify({ key: value })
+        }
 
         let myPromise = new Promise(function (resolve) {
             fetch('http://localhost/projects/to_do_list/backend/app.php', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Content-Type': `application/${type}`,
                 },
-                body: `${key}=${value}`
+                body: body
+                // body: `${key}=${value}`
             })
                 .then(function (data) {
                     resolve(data.text());
@@ -143,7 +157,67 @@ class User {
         }
         note.remove();
     }
+    subscribeInput(classInput) {
+        let input = this.getSelector(`.${classInput}`);
+        input.addEventListener('input', this.getInputValue.bind(this, { classInput }));
+    }
+    getInputValue({ classInput }) {
+        let value = this.getSelector(`.${classInput}`).value;
+        this.setLocalStorage(classInput, value);
+    }
+    setLocalStorage(classInput, value) {
+        localStorage.setItem(classInput, value);
+    }
+    getLocalStorage(classInput) {
+        let value = localStorage.getItem(classInput);
+        return { classInput, value };
+    }
+    cleanLocalStorage(classInput) {
+        localStorage.removeItem(`${classInput}`);
+    }
+    cleanInput(classInput) {
+        this.getSelector(`.${classInput}`).value = '';
+    }
+    mountInput(classInput) {
+        let value = this.getLocalStorage(classInput);
+        this.getSelector(`.${classInput}`).value = value['value'];
+    }
+    subscribe(elem, event, func, argArr = []) {
+        elem.addEventListener(event, func.bind(this, argArr));
 
+
+    }
+    setNote(argArr, e) {
+        e.preventDefault();
+        let noteValue = {};
+
+        for (let classInput of argArr) {
+            this.cleanInput(classInput);
+            noteValue[`${classInput}`] = this.getLocalStorage(classInput)['value'];
+            this.cleanLocalStorage(classInput);
+        }
+
+
+
+        if (noteValue) {
+            this.setServer(noteValue);
+        }
+    }
+    setServer(noteValue) {
+        let strNoteValue = noteValue;
+        // let strNoteValue = JSON.stringify(noteValue);
+        let notePromise = this.getPromise('note', strNoteValue, 'json');
+
+        notePromise.then(value => {
+            debug(value);
+            // debug(JSON.parse(value));
+            // if (JSON.parse(value) == true) {
+            //     // alert('ok');
+            //     return;
+            // };
+            alert('запись не добавленна');
+        });
+    }
 
 
 }
