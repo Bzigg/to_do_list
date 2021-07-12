@@ -204,6 +204,9 @@ class User {
         if (noteValue['note__title'] != null) {
             this.setServer(noteValue);
         }
+        else {
+            alert('Заполните заголовок');
+        }
     }
     setServer(noteValue) {
         let strNoteValue = noteValue;
