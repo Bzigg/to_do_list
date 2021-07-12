@@ -12,7 +12,7 @@ class List {
     parseData() {
         let dataObj = JSON.parse(this.dataStr);
         for (let key in dataObj) {
-            this.notes.push(new Note(key, dataObj[key]));
+            this.notes.push(new Note(dataObj[key]));
         }
     }
     /**

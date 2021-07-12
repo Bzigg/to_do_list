@@ -49,9 +49,9 @@ $postData = file_get_contents('php://input');
 
 $data = json_decode($postData, true);
 
-if (isset($data['key'])) {
+if (isset($data['note'])) {
 
-    $note = $data['key'];
+    $note = $data['note'];
     // echo json_encode($note);
     $title = $note['note__title'];
     $discription = $note['note__discription'];

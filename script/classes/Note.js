@@ -1,5 +1,5 @@
 class Note {
-    constructor(id, items) {
+    constructor(items) {
         this.id = items['id_note'];
         this.title = items['title'];
         this.discription = items['discription'];

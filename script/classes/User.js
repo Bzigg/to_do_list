@@ -47,7 +47,10 @@ class User {
         let body = `${key}=${value}`
 
         if (type == 'json') {
-            body = JSON.stringify({ key: value })
+            let newNote = {};
+            newNote[key] = value;
+            body = JSON.stringify(newNote);
+            // body = JSON.stringify({ `${key}`: value })
         }
 
         let myPromise = new Promise(function (resolve) {
