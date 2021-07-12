@@ -201,7 +201,7 @@ class User {
 
 
 
-        if (noteValue) {
+        if (noteValue['note__title'] != null) {
             this.setServer(noteValue);
         }
     }
@@ -215,7 +215,10 @@ class User {
             // debug(value);
             // debug(JSON.parse(value));
             if (JSON.parse(value) == true) {
-                this.mount();
+                let cards = document.querySelector('.main__cards');
+                cards.innerHTML = '';
+                // this.listNotes.notes = [];
+                this.getName();
                 return;
             };
             alert('запись не добавленна');

@@ -10,6 +10,7 @@ class List {
      * создаем экземпляр заметки
      */
     parseData() {
+        this.cleanNotes();
         let dataObj = JSON.parse(this.dataStr);
         for (let key in dataObj) {
             this.notes.push(new Note(dataObj[key]));
@@ -19,6 +20,7 @@ class List {
      * рендер заметки
      */
     render() {
+        this.cleanLayout();
         for (let value of this.notes) {
             let note = `
             <div class="main__card" id="${value.id}">
@@ -29,5 +31,11 @@ class List {
             </div>`;
             this.layout += note;
         }
+    }
+    cleanLayout() {
+        this.layout = '';
+    }
+    cleanNotes() {
+        this.notes = [];
     }
 }
