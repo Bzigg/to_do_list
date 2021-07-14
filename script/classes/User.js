@@ -1,7 +1,6 @@
 class User {
     constructor() {
         this.name = '';
-        this.idNote;
         this.listNotes = new List();
         this.flagEventSave = 0;
         this.bindFunction;
@@ -82,18 +81,13 @@ class User {
         let notesPromise = this.getPromise('getDataNotes', 'last10')
 
         notesPromise.then(value => {
-
             let strNotes = value;
             this.listNotes.dataStr = strNotes;
             this.mount();
-
         });
-
-        // debug(this.listNotes);
-
     }
     /**
-     * выводим на страницу отрендеренные заетки
+     * выводим на страницу отрендеренные заметки
      */
     mount() {
         this.listNotes.parseData();
@@ -107,7 +101,6 @@ class User {
             notes.forEach(item => {
                 this.subscribe(item, 'click', this.onDeleteNotes, [], 'deleteNote');
             });
-            // this.subscribeOnDelete();
         }
     }
 
@@ -116,14 +109,14 @@ class User {
      * @param {Object} event 
      */
 
-    //как передать event при подписке
+    //как передать event при подписке?
     onDeleteNotes(/*argArr, event*/) {
-        this.idNote = this.getNoteId(event.target.parentNode);
+        let idNote = this.getNoteId(event.target.parentNode);
 
-        let deleteNote = this.getPromise('deleteNote', this.idNote);
+        let deleteNote = this.getPromise('deleteNote', idNote);
 
         deleteNote.then((value) => {
-            this.checkDeleteNote(value);
+            this.checkDeleteNote(value, idNote);
         });
 
     }
@@ -131,10 +124,10 @@ class User {
      * если с сервера пришел ответ (true) вызываем удаление заметки
      * @param {JSON} value 
      */
-    checkDeleteNote(value) {
+    checkDeleteNote(value, idNote) {
         let answer = JSON.parse(value);
         if (answer === true) {
-            this.unmount(this.idNote);
+            this.unmount(idNote);
         }
         else {
             alert('Ошибка при удалении данных');
@@ -149,7 +142,7 @@ class User {
         let note = document.getElementById(`${id}`);
         let deleteBtn = note.querySelector('.main__card-delete');
         this.unsubscribe(deleteBtn, 'click', this.bindFunctions['deleteNote']);
-        // this.unsubscribeOnDelete(deleteBtn);
+
 
         while (note.lastChild) {
             note.removeChild(note.lastChild);
@@ -212,19 +205,14 @@ class User {
     }
     setServer(noteValue/*, e*/) {
         let strNoteValue = noteValue;
-        // let strNoteValue = JSON.stringify(noteValue);
         let notePromise = this.getPromise('note', strNoteValue, 'json');
 
         notePromise.then(value => {
-            // debug(value);
-            // debug(value);
-            // debug(JSON.parse(value));
             if (JSON.parse(value) == true) {
                 let cards = document.querySelector('.main__cards');
                 cards.innerHTML = '';
-                // this.unsubscribe(e.target, 'click', this.setNote);
-                this.unsubscribe(this.getSelector(`.note__save`), 'click', this.bindFunctions['saveNote']);
-                // this.flagEventSave = 1;
+                // this.unsubscribe(this.getSelector(`.note__save`), 'click', this.bindFunctions['saveNote']); не нужно тк есть флаг
+                this.flagEventSave = 1;
                 this.getName();
                 return;
             };
