@@ -3,7 +3,9 @@ class User {
         this.name = '';
         this.idNote;
         this.listNotes = new List();
-        this.flagEventSave = 0
+        this.flagEventSave = 0;
+        this.bindFunction;
+        this.bindFunctions = {};
     }
     /**
      * 
@@ -36,7 +38,7 @@ class User {
         this.mountInput('note__discription')
         this.getData();
         if (this.flagEventSave == 0) {
-            this.subscribe(this.getSelector(`.note__save`), 'click', this.setNote, ['note__title', 'note__discription']);
+            this.subscribe(this.getSelector(`.note__save`), 'click', this.setNote, ['note__title', 'note__discription'], 'saveNote');
         }
     }
     /**
@@ -101,30 +103,21 @@ class User {
             let cards = document.querySelector('.main__cards');
             cards.innerHTML = '';
             cards.innerHTML = layout;
-            this.subscribeOnDelete();
+            let notes = document.querySelectorAll('.main__card-delete');
+            notes.forEach(item => {
+                this.subscribe(item, 'click', this.onDeleteNotes, [], 'deleteNote');
+            });
+            // this.subscribeOnDelete();
         }
     }
-    /**
-     * подписываемся на удаление заметки
-     */
-    subscribeOnDelete() {
-        let notes = document.querySelectorAll('.main__card-delete');
-        notes.forEach(item => {
-            item.addEventListener('click', this.onDeleteNotes.bind(this));
-        });
-    }
-    /**
-     * отписка от кнопки удаления
-     * @param {Object} deleteBtn узел кнопки удаление
-     */
-    unsubscribeOnDelete(deleteBtn) {
-        deleteBtn.removeEventListener('click', this.onDeleteNotes);
-    }
+
     /**
      * отправляем запрос на удаление заметки
      * @param {Object} event 
      */
-    onDeleteNotes(event) {
+
+    //как передать event при подписке
+    onDeleteNotes(/*argArr, event*/) {
         this.idNote = this.getNoteId(event.target.parentNode);
 
         let deleteNote = this.getPromise('deleteNote', this.idNote);
@@ -155,7 +148,8 @@ class User {
     unmount(id) {
         let note = document.getElementById(`${id}`);
         let deleteBtn = note.querySelector('.main__card-delete');
-        this.unsubscribeOnDelete(deleteBtn);
+        this.unsubscribe(deleteBtn, 'click', this.bindFunctions['deleteNote']);
+        // this.unsubscribeOnDelete(deleteBtn);
 
         while (note.lastChild) {
             note.removeChild(note.lastChild);
@@ -166,6 +160,7 @@ class User {
         let input = this.getSelector(`.${classInput}`);
         input.addEventListener('input', this.getInputValue.bind(this, { classInput }));
     }
+
     getInputValue({ classInput }) {
         let value = this.getSelector(`.${classInput}`).value;
         this.setLocalStorage(classInput, value);
@@ -187,13 +182,12 @@ class User {
         let value = this.getLocalStorage(classInput);
         this.getSelector(`.${classInput}`).value = value['value'];
     }
-    subscribe(elem, event, func, argArr = []) {
-        elem.addEventListener(event, func.bind(this, argArr));
+
+    subscribe(elem, event, func, argArr = [], key) {
+        this.bindFunctions[key] = func.bind(this, argArr)
+        elem.addEventListener(event, this.bindFunctions[key]);
     }
     unsubscribe(elem, event, func) {
-        debug(elem);
-        debug(event);
-        debug(func);
         elem.removeEventListener(event, func);
     }
     setNote(argArr, e) {
@@ -216,7 +210,7 @@ class User {
             alert('Заполните заголовок');
         }
     }
-    setServer(noteValue, e) {
+    setServer(noteValue/*, e*/) {
         let strNoteValue = noteValue;
         // let strNoteValue = JSON.stringify(noteValue);
         let notePromise = this.getPromise('note', strNoteValue, 'json');
@@ -228,9 +222,9 @@ class User {
             if (JSON.parse(value) == true) {
                 let cards = document.querySelector('.main__cards');
                 cards.innerHTML = '';
-                this.unsubscribe(e.target, 'click', this.setNote);
-                // this.unsubscribe(this.getSelector(`.note__save`), 'click', this.setNote);
-                this.flagEventSave = 1;
+                // this.unsubscribe(e.target, 'click', this.setNote);
+                this.unsubscribe(this.getSelector(`.note__save`), 'click', this.bindFunctions['saveNote']);
+                // this.flagEventSave = 1;
                 this.getName();
                 return;
             };
