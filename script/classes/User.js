@@ -3,6 +3,7 @@ class User {
         this.name = '';
         this.idNote;
         this.listNotes = new List();
+        this.flagEventSave = 0
     }
     /**
      * 
@@ -24,6 +25,7 @@ class User {
      * запрос имени пользователя с бэка по id из cookes (не реализованно)
      * инициализация рендера
      */
+
     getName() {
         let name = 'ddd';
         // запросить name
@@ -33,8 +35,9 @@ class User {
         this.mountInput('note__title')
         this.mountInput('note__discription')
         this.getData();
-
-        this.subscribe(this.getSelector(`.note__save`), 'click', this.setNote, ['note__title', 'note__discription'])
+        if (this.flagEventSave == 0) {
+            this.subscribe(this.getSelector(`.note__save`), 'click', this.setNote, ['note__title', 'note__discription']);
+        }
     }
     /**
      * 
@@ -186,8 +189,12 @@ class User {
     }
     subscribe(elem, event, func, argArr = []) {
         elem.addEventListener(event, func.bind(this, argArr));
-
-
+    }
+    unsubscribe(elem, event, func) {
+        debug(elem);
+        debug(event);
+        debug(func);
+        elem.removeEventListener(event, func);
     }
     setNote(argArr, e) {
         e.preventDefault();
@@ -195,20 +202,21 @@ class User {
 
         for (let classInput of argArr) {
             this.cleanInput(classInput);
-            noteValue[`${classInput}`] = this.getLocalStorage(classInput)['value'];
+            noteValue[classInput] = this.getLocalStorage(classInput)['value'];
+            // noteValue[`${classInput}`] = this.getLocalStorage(classInput)['value'];
             this.cleanLocalStorage(classInput);
         }
 
 
 
         if (noteValue['note__title'] != null) {
-            this.setServer(noteValue);
+            this.setServer(noteValue, e);
         }
         else {
             alert('Заполните заголовок');
         }
     }
-    setServer(noteValue) {
+    setServer(noteValue, e) {
         let strNoteValue = noteValue;
         // let strNoteValue = JSON.stringify(noteValue);
         let notePromise = this.getPromise('note', strNoteValue, 'json');
@@ -220,7 +228,9 @@ class User {
             if (JSON.parse(value) == true) {
                 let cards = document.querySelector('.main__cards');
                 cards.innerHTML = '';
-                // this.listNotes.notes = [];
+                this.unsubscribe(e.target, 'click', this.setNote);
+                // this.unsubscribe(this.getSelector(`.note__save`), 'click', this.setNote);
+                this.flagEventSave = 1;
                 this.getName();
                 return;
             };
