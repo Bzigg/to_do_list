@@ -59,7 +59,7 @@ class User {
         }
 
         let myPromise = new Promise(function (resolve) {
-            fetch('http://localhost/projects/to_do_list/backend/app.php', {
+            fetch(`${window.location.href}backend/app.php`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': `application/${type}`,
