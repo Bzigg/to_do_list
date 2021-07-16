@@ -55,7 +55,7 @@ if (isset($data['note'])) {
     // echo json_encode($note);
     $title = $note['note__title'];
     $discription = $note['note__discription'];
-    $today = date('Y') . date('m') . date('d');
+    $today = date("H:i d.m.Y");
     $status = 1;
 
     $query_add_note = "INSERT INTO `to_do_list`.`notes` (`title`,`discription`,`date`,`status` ) VALUES ( '$title','$discription','$today','$status' ) ";

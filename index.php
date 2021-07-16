@@ -20,12 +20,12 @@
     <div class="wrapper">
         <header class="header">
             <div class="container">
-                <nav class="header__menu">
+                <!-- <nav class="header__menu">
                     <ul class="menu__list">
                         <li class="menu__item"><a href="#" class="menu__link">Войти</a></li>
                         <li class="menu__item"><a href="#" class="menu__link">Регистрация</a></li>
                     </ul>
-                </nav>
+                </nav> -->
             </div>
         </header>
 
@@ -36,9 +36,9 @@
                         <div class="main__cards">
                             <p class="main__card-none">В данный момент записей не обнаруженно</p>
                         </div>
-                        <div class="main__cards-bottom">
+                        <!-- <div class="main__cards-bottom">
                             <button class="main__cards-btn btn">Ещё</button>
-                        </div>
+                        </div> -->
                     </div>
 
                     <div class="main__add-block">
