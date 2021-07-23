@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1
--- Время создания: Июл 07 2021 г., 13:38
--- Версия сервера: 10.4.18-MariaDB
--- Версия PHP: 8.0.3
+-- Время создания: Июл 23 2021 г., 13:11
+-- Версия сервера: 10.4.19-MariaDB
+-- Версия PHP: 8.0.6
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -30,19 +30,10 @@ SET time_zone = "+00:00";
 CREATE TABLE `notes` (
   `id_note` int(11) NOT NULL,
   `title` varchar(200) NOT NULL,
-  `text` text NOT NULL,
+  `discription` text NOT NULL,
   `date` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `status` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Дамп данных таблицы `notes`
---
-
-INSERT INTO `notes` (`id_note`, `title`, `text`, `date`, `status`) VALUES
-(1, 'купить продукты', 'молоко, кефир, творог, яблоки', '2021.06.29', 1),
-(2, 'план', 'купить стой-мат и сделать ремонт', '2021.07.07', 1),
-(3, 'титл', 'бесполезный текст', '2021.07.07', 1);
 
 --
 -- Индексы сохранённых таблиц
@@ -62,7 +53,7 @@ ALTER TABLE `notes`
 -- AUTO_INCREMENT для таблицы `notes`
 --
 ALTER TABLE `notes`
-  MODIFY `id_note` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id_note` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
