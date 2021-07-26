@@ -1,41 +1,66 @@
+"use strict";
+/**
+ * класс списка c pfvtnrfvb. 
+ * this.data - объект данных с бл. где notes - массив заметок; yet - есть ли еще заметки (bool)
+ * this.notes - массив отрендеринных заметок 
+ * this.layout - отрендеринный вид заметок
+ */
 class List {
-    constructor(dataStr) {
-        this.dataStr = dataStr;
-        // this.dataObj = {};
+    constructor(data) {
+        this.data = data;
         this.notes = [];
         this.layout = '';
     }
     /**
-     * парсим данные с сервера и передаем в dataObj
-     * создаем экземпляр заметки
+     * начинает монтаж списка
+     * обнуляет this.notes и this.layout
+     * @returns - отрендеренный список
      */
-    parseData() {
-        this.cleanNotes();
-        let dataObj = JSON.parse(this.dataStr);
-        for (let key in dataObj) {
-            this.notes.push(new Note(dataObj[key]));
+    mount() {
+        this.notes = [];
+        this.layout = '';
+
+        let arrayNotes = this.data.notes;
+        for (let value of arrayNotes) {
+            let note = factory.create(Note, value);
+            this.notes.push(note.render());
         }
+        return this.render();
     }
     /**
-     * рендер заметки
+     * рендер списка. при необходимости добавит кнопку
+     * @returns вернет переменную с готовым списком
      */
     render() {
-        this.cleanLayout();
         for (let value of this.notes) {
-            let note = `
-            <div class="main__card" id="${value.id}">
-                <img src="images/ui/close_x.png" alt="Закрыть" class="main__card-delete">
-                <div class="main__card-title">${value.title}</div>
-                <div class="main__card-discription">${value.discription}</div>
-                <div class="main__card-date">${value.date}</div>
-            </div>`;
-            this.layout += note;
+            this.layout += value;
         }
+        if (this.data.yet && !document.querySelector('.main__cards-bottom')) {
+            this.addMoreBtn();
+            return this.layout;
+        }
+        else if (!this.data.yet && document.querySelector('.main__cards-bottom')) {
+            document.querySelector('.main__cards-bottom').remove();
+        }
+        return this.layout;
+
     }
-    cleanLayout() {
-        this.layout = '';
+    /**
+     * добавляет кнопку в верстку
+     */
+    addMoreBtn() {
+        let cardBlock = document.querySelector('.main__cards-block');
+        cardBlock.append(this.renderMoreBtn());
     }
-    cleanNotes() {
-        this.notes = [];
+    /**
+     * рендер кнопки
+     * @returns макет кнопки
+     */
+    renderMoreBtn() {
+        let btn = document.createElement('div');
+        btn.className = 'main__cards-bottom';
+        btn.innerHTML = '<button class="main__cards-btn btn">Ещё</button>';
+        return btn;
     }
 }
+

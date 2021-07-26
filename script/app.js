@@ -1,7 +1,5 @@
+"use strict";
 
-let user = new User();
-user.getName();
-
-
-
-
+const factory = new AbstractFactory();
+let user = factory.create(User);
+user.init();

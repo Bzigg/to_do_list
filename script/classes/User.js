@@ -1,224 +1,168 @@
-class User {
+"use strict";
+/**
+ * класс пользовотеля. инициализирует отрисовку страницы
+ * включает 2 приватных свойства:
+ * #flagEventSave - флаг подписки на кнопку "сохранить"
+ * #flagMoreNotes - флаг подписки на кнопку "показыть еще"
+ * свойство this.listNotes - обьект "список заметок"
+ */
+class User extends Component {
+    #flagEventSave;
+    #flagMoreNotes;
     constructor() {
-        this.name = '';
-        this.listNotes = new List();
-        this.flagEventSave = 0;
-        this.bindFunction;
-        this.bindFunctions = {};
+        super();
+        this.listNotes = factory.create(List);
+        this.#flagEventSave = 0;
+        this.#flagMoreNotes = 0;
     }
     /**
-     * 
-     * @param {Object} item 
-     * @returns id узла
+     * инициализация отрисовки заметок
      */
-    getNoteId(item) {
-        return item.id;
-    }
-    /**
-     * 
-     * @param {String} selector 
-     * @returns вернет элемент
-     */
-    getSelector(selector) {
-        return document.querySelector(selector);
-    }
-    /**
-     * запрос имени пользователя с бэка по id из cookes (не реализованно)
-     * инициализация рендера
-     */
-
-    getName() {
-        let name = 'ddd';
-        // запросить name
-        this.name = name;
-        this.subscribeInput('note__title');
-        this.subscribeInput('note__discription');
-        this.mountInput('note__title')
-        this.mountInput('note__discription')
-        this.getData();
-        if (this.flagEventSave == 0) {
-            this.subscribe(this.getSelector(`.note__save`), 'click', this.setNote, ['note__title', 'note__discription'], 'saveNote');
+    init() {
+        this._beforeMount();
+        if (this.#flagEventSave === 0) {
+            this.setBindFunctions('subscribeOnSave', this._getNote.bind(this))
+            this.subscribe(this.getElement('.note__save'), 'click', this.getBindFunctions('subscribeOnSave'));
         }
     }
     /**
-     * 
-     * @param {*} key 
-     * @param {*} value 
-     * @returns готовый промис
+     * отправляет запрос перед монтированием
+     * @param {Number} lastNote id номер последней заметки. если 0 то заметок нет
      */
-    getPromise(key, value, type = 'x-www-form-urlencoded') {
+    _beforeMount(lastNote = 0) {
+        let cardsContainer = this.getElement('.main__cards');
+        let queryData = this.getPromise('getDataNotes', `${lastNote}`);
 
-        let body = `${key}=${value}`
-
-        if (type == 'json') {
-            let newNote = {};
-            newNote[key] = value;
-            body = JSON.stringify(newNote);
-            // body = JSON.stringify({ `${key}`: value })
+        queryData.then(value => {
+            this.listNotes.data = JSON.parse(value);
+            this._mount(cardsContainer);
+        })
+    }
+    /**
+     * монтирует заметки на страницу, или сообщение об их отсутствии
+     * @param {Object} cardsContainer - элемент, куда вставляем вертску
+     */
+    _mount(cardsContainer) {
+        let cards = this.listNotes.mount();
+        if (cards != '') {
+            cardsContainer.innerHTML += cards;
+            this._afterMounth();
         }
-
-        let myPromise = new Promise(function (resolve) {
-            fetch(`${window.location.href}backend/app.php`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': `application/${type}`,
-                },
-                body: body
-                // body: `${key}=${value}`
-            })
-                .then(function (data) {
-                    resolve(data.text());
-                })
+        else {
+            cardsContainer.innerHTML = 'В данный момент записей не обнаруженно';
+        }
+    }
+    /**
+     * действие после монтирования. подписки на кнопки
+     */
+    _afterMounth() {
+        this.setBindFunctions('deleteNote', this._deleteNote.bind(this));
+        let notes = document.querySelectorAll('.main__card-delete');
+        notes.forEach(item => {
+            this.subscribe(item, 'click', this.getBindFunctions('deleteNote'));
         });
-        return myPromise;
-
-    }
-    /**
-     * запрос данных ис сервера
-     */
-    getData() {
-
-        let notesPromise = this.getPromise('getDataNotes', 'last10')
-
-        notesPromise.then(value => {
-            let strNotes = value;
-            this.listNotes.dataStr = strNotes;
-            this.mount();
-        });
-    }
-    /**
-     * выводим на страницу отрендеренные заметки
-     */
-    mount() {
-        this.listNotes.parseData();
-        this.listNotes.render();
-        let layout = this.listNotes.layout;
-        if (layout) {
-            let cards = document.querySelector('.main__cards');
-            cards.innerHTML = '';
-            cards.innerHTML = layout;
-            let notes = document.querySelectorAll('.main__card-delete');
-            notes.forEach(item => {
-                this.subscribe(item, 'click', this.onDeleteNotes, [], 'deleteNote');
-            });
+        let btn = this.getElement('.main__cards-btn');
+        if (btn && this.#flagMoreNotes != 1) {
+            this.setBindFunctions('moreNotes', this._moreNotes.bind(this));
+            this.subscribe(btn, 'click', this.getBindFunctions('moreNotes'));
+            this.#flagMoreNotes = 1;
         }
     }
-
     /**
-     * отправляем запрос на удаление заметки
-     * @param {Object} event 
+     * размонтирование замети
+     * @param {Number} id - номер заметки, которую удаляем
      */
+    _unmount(id) {
+        let note = document.getElementById(`${id}`);
+        let deleteBtn = note.querySelector('.main__card-delete');
+        this.unsubscribe(deleteBtn, 'click', this.getBindFunctions('deleteNote'));
+        this.deleteElement(note);
 
-    //как передать event при подписке?
-    onDeleteNotes(/*argArr, event*/) {
-        let idNote = this.getNoteId(event.target.parentNode);
+    }
+    /**
+     * получение данных из полей
+     * @param {Object} event - событие кнопки "сохранить"
+     */
+    _getNote(event) {
+        event.preventDefault();
+
+        let note = {};
+
+        let noteTitle = this.getElement('.note__title').value.trim();
+        if (noteTitle != '') {
+            let noteDiscription = this.getElement('.note__discription').value.trim();
+
+            this.cleanInput('note__title');
+            this.cleanInput('note__discription');
+
+            note['note__title'] = noteTitle;
+            note['note__discription'] = noteDiscription;
+
+            this._pushOnServer(note);
+        }
+        else {
+            alert('Заполните заголовок');
+        }
+    }
+    /**
+     * отправляем в бл
+     * @param {Object} note заметка: title + discription
+     */
+    _pushOnServer(note) {
+        let pushPromise = this.getPromise('note', note, 'json');
+
+        pushPromise.then(value => {
+            if (JSON.parse(value) == true) {
+                let cards = this.getElement('.main__cards');
+                this.deleteChilds(cards);
+
+                this.#flagEventSave = 1;
+                this.init();
+                return;
+            }
+            else {
+                alert('Проблемы при записи в базу данных');
+            }
+        })
+    }
+    /**
+     * инициализирует удаление заметки.
+     */
+    _deleteNote() {
+        let idNote = event.target.parentNode.id;
 
         let deleteNote = this.getPromise('deleteNote', idNote);
 
         deleteNote.then((value) => {
-            this.checkDeleteNote(value, idNote);
+            this._checkDeleteNote(value, idNote);
         });
-
     }
     /**
-     * если с сервера пришел ответ (true) вызываем удаление заметки
-     * @param {JSON} value 
+     * проверяет ответ из бл.
+     * @param {String} value - ответ из бл
+     * @param {Number} idNote - id заметки
      */
-    checkDeleteNote(value, idNote) {
+    _checkDeleteNote(value, idNote) {
         let answer = JSON.parse(value);
         if (answer === true) {
-            this.unmount(idNote);
+            this._unmount(idNote);
         }
         else {
             alert('Ошибка при удалении данных');
         }
     }
     /**
-     * инициализируем удаление заметки
-     * @param {String} id номер заметки
+     * инициализирует монтирование заметок по кнопке "еще"
      */
-
-    unmount(id) {
-        let note = document.getElementById(`${id}`);
-        let deleteBtn = note.querySelector('.main__card-delete');
-        this.unsubscribe(deleteBtn, 'click', this.bindFunctions['deleteNote']);
-
-
-        while (note.lastChild) {
-            note.removeChild(note.lastChild);
-        }
-        note.remove();
+    _moreNotes() {
+        let lastNote = this.getLastNote();
+        this._beforeMount(lastNote);
+    }/**
+     * получает все заметки и возвращает id последней
+     * @returns Number
+     */
+    getLastNote() {
+        let allNotes = document.querySelectorAll('.main__card');
+        return allNotes[allNotes.length - 1].id;
     }
-    subscribeInput(classInput) {
-        let input = this.getSelector(`.${classInput}`);
-        input.addEventListener('input', this.getInputValue.bind(this, { classInput }));
-    }
-
-    getInputValue({ classInput }) {
-        let value = this.getSelector(`.${classInput}`).value;
-        this.setLocalStorage(classInput, value);
-    }
-    setLocalStorage(classInput, value) {
-        localStorage.setItem(classInput, value);
-    }
-    getLocalStorage(classInput) {
-        let value = localStorage.getItem(classInput);
-        return { classInput, value };
-    }
-    cleanLocalStorage(classInput) {
-        localStorage.removeItem(`${classInput}`);
-    }
-    cleanInput(classInput) {
-        this.getSelector(`.${classInput}`).value = '';
-    }
-    mountInput(classInput) {
-        let value = this.getLocalStorage(classInput);
-        this.getSelector(`.${classInput}`).value = value['value'];
-    }
-
-    subscribe(elem, event, func, argArr = [], key) {
-        this.bindFunctions[key] = func.bind(this, argArr)
-        elem.addEventListener(event, this.bindFunctions[key]);
-    }
-    unsubscribe(elem, event, func) {
-        elem.removeEventListener(event, func);
-    }
-    setNote(argArr, e) {
-        e.preventDefault();
-        let noteValue = {};
-
-        for (let classInput of argArr) {
-            this.cleanInput(classInput);
-            noteValue[classInput] = this.getLocalStorage(classInput)['value'];
-            // noteValue[`${classInput}`] = this.getLocalStorage(classInput)['value'];
-            this.cleanLocalStorage(classInput);
-        }
-
-
-
-        if (noteValue['note__title'] != null) {
-            this.setServer(noteValue, e);
-        }
-        else {
-            alert('Заполните заголовок');
-        }
-    }
-    setServer(noteValue/*, e*/) {
-        let strNoteValue = noteValue;
-        let notePromise = this.getPromise('note', strNoteValue, 'json');
-
-        notePromise.then(value => {
-            if (JSON.parse(value) == true) {
-                let cards = document.querySelector('.main__cards');
-                cards.innerHTML = '';
-                // this.unsubscribe(this.getSelector(`.note__save`), 'click', this.bindFunctions['saveNote']); не нужно тк есть флаг
-                this.flagEventSave = 1;
-                this.getName();
-                return;
-            };
-            alert('запись не добавленна');
-        });
-    }
-
-
 }

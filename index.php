@@ -9,9 +9,11 @@
     <link rel="stylesheet" href="style/normalize.css">
     <link rel="stylesheet" href="style/style.css">
     <script src="script/debug.js" defer></script>
-    <script src="script/classes/Note.js" defer></script>
-    <script src="script/classes/List.js" defer></script>
+    <script src="script/classes/AbstractFactory.js" defer></script>
+    <script src="script/classes/Component.js" defer></script>
     <script src="script/classes/User.js" defer></script>
+    <script src="script/classes/List.js" defer></script>
+    <script src="script/classes/Note.js" defer></script>
     <script src="script/app.js" defer></script>
 
 </head>
@@ -34,11 +36,9 @@
                 <div class="main__content">
                     <div class="main__cards-block">
                         <div class="main__cards">
-                            <p class="main__card-none">В данный момент записей не обнаруженно</p>
+
                         </div>
-                        <!-- <div class="main__cards-bottom">
-                            <button class="main__cards-btn btn">Ещё</button>
-                        </div> -->
+
                     </div>
 
                     <div class="main__add-block">
